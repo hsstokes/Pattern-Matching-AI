@@ -229,16 +229,27 @@
                 this.growing = true;
                 this.maxRadius = radius * random(3, 8); // Larger shapes
                 
-                // NEW: Add rotation for rectangles
+                // Rotation for hexagons
                 this.rotation = random(TWO_PI);
                 this.rotationSpeed = random(-0.05, 0.05);
                 
-                // NEW: Choose effect type (0 = single rect, 1 = grid, 2 = layered)
+                // Choose effect type (0 = single rect, 1 = grid, 2 = layered)
                 this.effectType = floor(random(3));
             }
+            // Helper function to draw a hexagon
+            drawHexagon(x,y, radius) {
+                beginShape();
+                for (let i = 0; i < 6; i++)
+                    { const angle = TWO_PI / 6 * I + PI / 6; //Adding PI/6 rotates to flat-top orientation
+                      const hx = x + radius * cos(angle);
+                      const hy = y + radius * sin(angle);
+                      vertex(hx, hy);
+                }
+                endShape(CLOSE);
             
+            }
             draw() {
-                // NEW: Add rotation transformation
+                // Add rotation transformation
                 push();
                 translate(this.x, this.y);
                 rotate(this.rotation);
@@ -248,8 +259,8 @@
                 const alpha = map(this.age, 0, this.lifetime, 255, 0);
                 fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
                 
-                // MODIFIED: Draw rectangles based on effect type
-                this.drawRectEffect(0, 0, this.radius);
+                // Draw hexagon effect
+                this.drawHexEffect(0, 0, this.radius);
                 
                 pop();
                 
@@ -257,7 +268,7 @@
                 this.x += this.velX;
                 this.y += this.velY;
                 
-                // NEW: Update rotation
+                // Update rotation
                 this.rotation += this.rotationSpeed;
                 
                 // Update size - faster growth
@@ -274,35 +285,34 @@
                 this.age++;
             }
             
-            // MODIFIED: Method to draw rectangle effects
-            drawRectEffect(x, y, radius) {
-                rectMode(CENTER);
-                
+            // Modified method to draw hexagon effects
+            drawHexEffect(x, y, radius) {
                 if (this.effectType === 0) {
-                    // Single sharp rectangle
-                    rect(x, y, radius * 2, radius * 2);
+                    // Single hexagon
+                    this.drawHexagon(x, y, radius);
                 } else if (this.effectType === 1) {
-                    // Grid pattern
+                    // Hexagonal grid pattern
                     const gridSize = 3;
-                    const cellSize = radius * 2 / gridSize;
+                    // In a hex grid, rows are offset
+                    const hexWidth = radius;
+                    const hexHeight = radius * 0.866; // sqrt(3)/2 * radius
+      
                     for (let i = 0; i < gridSize; i++) {
-                        for (let j = 0; j < gridSize; j++) {
+                        const rowOffset = (i % 2) * 0.5; // Offset every other row
+                        for (let j = -gridSize; j <= gridSize; j++) {
                             if (random() > 0.3) { // Random gaps
-                                rect(
-                                    (i - gridSize/2 + 0.5) * cellSize,
-                                    (j - gridSize/2 + 0.5) * cellSize,
-                                    cellSize * 0.8,
-                                    cellSize * 0.8
-                                );
+                                    const hexX = x + (j + rowOffset) * hexWidth * 1.5;
+                                    const hexY = y + i * hexHeight * 1.7;
+                                    this.drawHexagon(hexX, hexY, radius * 0.4);
                             }
                         }
                     }
                 } else {
-                    // Layered rectangles
+                    // Layered hexagons
                     for (let i = 0; i < 3; i++) {
                         const currentAlpha = map(this.age, 0, this.lifetime, 255, 0) / (i + 1);
                         fill(red(this.colour), green(this.colour), blue(this.colour), currentAlpha);
-                        rect(x, y, radius * 2 * (1 - i * 0.2), radius * 2 * (1 - i * 0.2));
+                        this.drawHexagon(x, y, radius * (1 - i * 0.2));
                     }
                 }
             }
@@ -476,21 +486,21 @@
             for (let i = 0; i < numCircles; i++) {
                 const size = random(7, 16); // Larger initial size
                 
-                 // Randomly choose between blue and red colors
+                 // Randomly choose between red and green colors
                  let circleColor;
 
-                if (random() < 0.5) { // 50% chance of blue
-                    // Blue colors (low red, low green, high blue)
+                if (random() < 0.5) { // 50% chance of red
+                    // Red colors (low blue, low green, high red)
                     circleColor = color(
-                        random(0, 50),  // low red
+                        random(200, 255),  // high red
                         random(0, 100), // low green
-                        random(200, 255)  // high blue
+                        random(0, 50)  // low blue
                     );
-                } else { // 50% chance of red
-                    // Red colors (high red, low green, low blue)
+                } else { // 50% chance of green
+                    // Green colors (low red, high green, low blue)
                     circleColor = color(
-                        random(200, 255), // high red
-                        random(0, 50),    // low green
+                        random(0, 100), // low red
+                        random(200, 255), // high green
                         random(0, 50)     // low blue
                     );
                 }
