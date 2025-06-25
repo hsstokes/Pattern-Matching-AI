@@ -240,7 +240,7 @@
             drawHexagon(x,y, radius) {
                 beginShape();
                 for (let i = 0; i < 6; i++)
-                    { const angle = TWO_PI / 6 * I + PI / 6; //Adding PI/6 rotates to flat-top orientation
+                    { const angle = TWO_PI / 6 * i + PI / 6; //Adding PI/6 rotates to flat-top orientation
                       const hx = x + radius * cos(angle);
                       const hy = y + radius * sin(angle);
                       vertex(hx, hy);
@@ -297,7 +297,7 @@
                     const hexWidth = radius;
                     const hexHeight = radius * 0.866; // sqrt(3)/2 * radius
       
-                    for (let i = 0; i < gridSize; i++) {
+                    for (let i = -gridSize; i <= gridSize; i++) {
                         const rowOffset = (i % 2) * 0.5; // Offset every other row
                         for (let j = -gridSize; j <= gridSize; j++) {
                             if (random() > 0.3) { // Random gaps
